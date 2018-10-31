@@ -48,12 +48,16 @@ class OrganizationSentryAppInstallationsEndpoint(OrganizationEndpoint):
     @requires_feature('organizations:internal-catchall')
     def post(self, request, organization):
         serializer = OrganizationSentryAppInstallationsSerializer(data=request.DATA)
+
         if not serializer.is_valid():
             return Response(serializer.errors, status=400)
 
         slug = serializer.object.get('slug')
+
         install, _ = Creator.run(
             organization=organization,
             slug=slug,
+            user=request.user,
         )
+
         return Response(serialize(install))
